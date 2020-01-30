@@ -16,14 +16,15 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"os"
 
-	homedir "github.com/mitchellh/go-homedir"
+	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
-var cfgFile string
+var cfgFile, outFormat string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -56,6 +57,7 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.auth0-cli.yaml)")
+	rootCmd.PersistentFlags().StringVarP(&outFormat, "format", "f", "table", "output format: table,csv (default table)")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
@@ -77,13 +79,16 @@ func initConfig() {
 
 		// Search config in home directory with name ".auth0-cli" (without extension).
 		viper.AddConfigPath(home)
+		viper.AddConfigPath(".") // optionally look for config in the working directory
 		viper.SetConfigName(".auth0-cli")
+		viper.SetConfigType("yaml") // REQUIRED if the config file does not have the extension in the name
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match
-
 	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
+	if err := viper.ReadInConfig(); err != nil {
+		logrus.Fatal(err)
 	}
+	fmt.Println("Using config file:", viper.ConfigFileUsed())
+	//TODO implement env vars as config file alternative.
 }

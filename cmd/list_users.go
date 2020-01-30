@@ -23,21 +23,21 @@ import (
 )
 
 // listCmd represents the list command
-var listCmd = &cobra.Command{
+var listUsersCmd = &cobra.Command{
 	Use:   "list",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Lists users in tenant",
+	//	Long: `A longer description that spans multiple lines and likely contains examples
+	//and usage of using your command. For example:
+	//
+	//Cobra is a CLI library for Go that empowers applications.
+	//This application is a tool to generate the needed files
+	//to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		m, err := manager.New()
 		if err != nil {
 			panic(err)
 		}
-		List(m)
+		ListUsers(m)
 	},
 }
 
@@ -52,7 +52,7 @@ type rolesMap map[management.Role][]*management.User
 
 func init() {
 
-	usersCmd.AddCommand(listCmd)
+	usersCmd.AddCommand(listUsersCmd)
 
 	// Here you will define your flags and configuration settings.
 
@@ -62,7 +62,7 @@ func init() {
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	listCmd.Flags().StringVarP(&filterRole, "role", "r", "", "Role to filter")
+	listUsersCmd.Flags().StringVarP(&filterRole, "role", "r", "", "Role to filter")
 }
 
 func GetRoles(m *management.Management) (map[string]string, error) {
@@ -93,12 +93,11 @@ func getRolesWithUsers(m *management.Management) (rolesMap, error) {
 	return r, nil
 }
 
-func List(m *management.Management) {
+func ListUsers(m *management.Management) {
 	printUsers(m, filterRole)
 }
 
 func fetchAllUsers(m *management.Management) ([]*management.User, error) {
-
 	l, err := m.User.List()
 	if err != nil {
 		return nil, err
@@ -111,9 +110,6 @@ func fetchAllUsers(m *management.Management) ([]*management.User, error) {
 			return nil, err
 		}
 		users = append(users, l.Users...)
-	}
-	if err != nil {
-		return nil, err
 	}
 	return users, nil
 }
@@ -144,9 +140,6 @@ func stringInUsersSlice(s []*management.User, u *management.User) bool {
 }
 
 func printUsers(m *management.Management, role string) {
-	ttx := table.NewWriter()
-	ttx.AppendHeader(table.Row{"ID", "User", "Roles"})
-	ttx.SetAutoIndex(true)
 	var users []*management.User
 	var err error
 	if role != "" {
@@ -166,10 +159,19 @@ func printUsers(m *management.Management, role string) {
 
 	usersWithRoles := appendRolesToUser(users, rolesUsers)
 
+	ttx := table.NewWriter()
+	ttx.AppendHeader(table.Row{"ID", "User", "Roles"})
+	ttx.SetAutoIndex(true)
 	for _, u := range usersWithRoles {
 		ttx.AppendRow(table.Row{*u.user.ID, *u.user.Name, u.roles})
 	}
-	fmt.Println(ttx.Render())
+	// Render output
+	switch outFormat {
+	case "csv":
+		fmt.Println(ttx.RenderCSV())
+	default:
+		fmt.Println(ttx.Render())
+	}
 }
 
 func fetchUsersByRole(m *management.Management, r string) ([]*management.User, error) {

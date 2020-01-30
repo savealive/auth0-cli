@@ -12,12 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package cmd
 
 import (
-	"github.com/savealive/auth0-cli/cmd"
+	"github.com/spf13/cobra"
 )
 
-func main() {
-	cmd.Execute()
+// rolesCmd represents the roles command
+var rolesCmd = &cobra.Command{
+	Use:   "roles",
+	Short: "manage roles",
+}
+
+func init() {
+	rootCmd.AddCommand(rolesCmd)
+
+	// Here you will define your flags and configuration settings.
+
+	// Cobra supports Persistent Flags which will work for this command
+	// and all subcommands, e.g.:
+	// rolesCmd.PersistentFlags().String("foo", "", "A help for foo")
+
+	// Cobra supports local flags which will only run when this command
+	// is called directly, e.g.:
+	// rolesCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

@@ -15,34 +15,55 @@
 package cmd
 
 import (
+	"fmt"
+	"github.com/jedib0t/go-pretty/table"
+	"github.com/savealive/auth0-cli/manager"
+	"github.com/sirupsen/logrus"
+	"gopkg.in/auth0.v3/management"
+
 	"github.com/spf13/cobra"
 )
 
-// usersCmd represents the users command
-var usersCmd = &cobra.Command{
-	Use:   "users",
-	Short: "Users operations",
+// listRolesCmd represents the list command
+var listRolesCmd = &cobra.Command{
+	Use:   "list",
+	Short: "list roles defined in tenant",
 	//	Long: `A longer description that spans multiple lines and likely contains examples
 	//and usage of using your command. For example:
 	//
 	//Cobra is a CLI library for Go that empowers applications.
 	//This application is a tool to generate the needed files
 	//to quickly create a Cobra application.`,
-	//Run: func(cmd *cobra.Command, args []string) {
-	//	fmt.Println("users called")
-	//},
+	Run: func(cmd *cobra.Command, args []string) {
+		m, err := manager.New()
+		if err != nil {
+			panic(err)
+		}
+		ListRoles(m)
+	},
 }
 
 func init() {
-	rootCmd.AddCommand(usersCmd)
+	rolesCmd.AddCommand(listRolesCmd)
+}
 
-	// Here you will define your flags and configuration settings.
+func ListRoles(m *management.Management) {
+	rl, err := m.Role.List()
+	if err != nil {
+		logrus.Fatal(err)
+	}
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// usersCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// usersCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	ttx := table.NewWriter()
+	ttx.AppendHeader(table.Row{"ID", "Name", "Description"})
+	ttx.SetAutoIndex(true)
+	for _, r := range rl.Roles {
+		ttx.AppendRow(table.Row{*r.ID, *r.Name, *r.Description})
+	}
+	// Render output
+	switch outFormat {
+	case "csv":
+		fmt.Println(ttx.RenderCSV())
+	default:
+		fmt.Println(ttx.Render())
+	}
 }
