@@ -16,7 +16,9 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/savealive/auth0-cli/manager"
 	"github.com/sirupsen/logrus"
+	"gopkg.in/auth0.v3/management"
 	"os"
 
 	"github.com/mitchellh/go-homedir"
@@ -25,17 +27,12 @@ import (
 )
 
 var cfgFile, outFormat string
+var m *management.Management
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "auth0-cli",
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "CLI to manage Auth0 tenant",
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	//	Run: func(cmd *cobra.Command, args []string) { },
@@ -58,10 +55,9 @@ func init() {
 	// will be global for your application.
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.auth0-cli.yaml)")
 	rootCmd.PersistentFlags().StringVarP(&outFormat, "format", "f", "table", "output format: table,csv (default table)")
-
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	//rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -91,4 +87,15 @@ func initConfig() {
 	}
 	fmt.Println("Using config file:", viper.ConfigFileUsed())
 	//TODO implement env vars as config file alternative.
+
+	var err error
+	if m, err = manager.New(); err != nil {
+		fmt.Printf("Error: %v", err)
+		os.Exit(1)
+	}
+}
+
+func exitWithMessage(v interface{}, code int) {
+	fmt.Println(v)
+	os.Exit(code)
 }

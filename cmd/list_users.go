@@ -17,7 +17,6 @@ package cmd
 import (
 	"fmt"
 	"github.com/jedib0t/go-pretty/table"
-	"github.com/savealive/auth0-cli/manager"
 	"github.com/spf13/cobra"
 	"gopkg.in/auth0.v3/management"
 )
@@ -26,18 +25,8 @@ import (
 var listUsersCmd = &cobra.Command{
 	Use:   "list",
 	Short: "Lists users in tenant",
-	//	Long: `A longer description that spans multiple lines and likely contains examples
-	//and usage of using your command. For example:
-	//
-	//Cobra is a CLI library for Go that empowers applications.
-	//This application is a tool to generate the needed files
-	//to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		m, err := manager.New()
-		if err != nil {
-			panic(err)
-		}
-		ListUsers(m)
+		ListUsers()
 	},
 }
 
@@ -65,7 +54,7 @@ func init() {
 	listUsersCmd.Flags().StringVarP(&filterRole, "role", "r", "", "Role to filter")
 }
 
-func GetRoles(m *management.Management) (map[string]string, error) {
+func GetRoles() (map[string]string, error) {
 	roles := make(map[string]string)
 	rl, err := m.Role.List()
 	if err != nil {
@@ -77,7 +66,7 @@ func GetRoles(m *management.Management) (map[string]string, error) {
 	return roles, nil
 }
 
-func getRolesWithUsers(m *management.Management) (rolesMap, error) {
+func getRolesWithUsers() (rolesMap, error) {
 	r := make(map[management.Role][]*management.User)
 	roles, err := m.Role.List()
 	if err != nil {
@@ -93,11 +82,11 @@ func getRolesWithUsers(m *management.Management) (rolesMap, error) {
 	return r, nil
 }
 
-func ListUsers(m *management.Management) {
-	printUsers(m, filterRole)
+func ListUsers() {
+	printUsers(filterRole)
 }
 
-func fetchAllUsers(m *management.Management) ([]*management.User, error) {
+func fetchAllUsers() ([]*management.User, error) {
 	l, err := m.User.List()
 	if err != nil {
 		return nil, err
@@ -139,22 +128,21 @@ func stringInUsersSlice(s []*management.User, u *management.User) bool {
 	return false
 }
 
-func printUsers(m *management.Management, role string) {
+func printUsers(role string) {
 	var users []*management.User
 	var err error
 	if role != "" {
-		users, err = fetchUsersByRole(m, role)
-
+		users, err = fetchUsersByRole(role)
 	} else {
-		users, err = fetchAllUsers(m)
+		users, err = fetchAllUsers()
 	}
 	if err != nil {
-		panic(err)
+		exitWithMessage(err, 0)
 	}
 
-	rolesUsers, err := getRolesWithUsers(m)
+	rolesUsers, err := getRolesWithUsers()
 	if err != nil {
-		panic(err)
+		exitWithMessage(err, 0)
 	}
 
 	usersWithRoles := appendRolesToUser(users, rolesUsers)
@@ -174,8 +162,8 @@ func printUsers(m *management.Management, role string) {
 	}
 }
 
-func fetchUsersByRole(m *management.Management, r string) ([]*management.User, error) {
-	roles, err := GetRoles(m)
+func fetchUsersByRole(r string) ([]*management.User, error) {
+	roles, err := GetRoles()
 	if err != nil {
 		return nil, err
 	}

@@ -17,10 +17,6 @@ package cmd
 import (
 	"fmt"
 	"github.com/jedib0t/go-pretty/table"
-	"github.com/savealive/auth0-cli/manager"
-	"github.com/sirupsen/logrus"
-	"gopkg.in/auth0.v3/management"
-
 	"github.com/spf13/cobra"
 )
 
@@ -35,11 +31,7 @@ var listRolesCmd = &cobra.Command{
 	//This application is a tool to generate the needed files
 	//to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		m, err := manager.New()
-		if err != nil {
-			panic(err)
-		}
-		ListRoles(m)
+		ListRoles()
 	},
 }
 
@@ -47,10 +39,10 @@ func init() {
 	rolesCmd.AddCommand(listRolesCmd)
 }
 
-func ListRoles(m *management.Management) {
+func ListRoles() {
 	rl, err := m.Role.List()
 	if err != nil {
-		logrus.Fatal(err)
+		exitWithMessage(err, 1)
 	}
 
 	ttx := table.NewWriter()

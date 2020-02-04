@@ -20,8 +20,9 @@ import (
 
 // usersCmd represents the users command
 var usersCmd = &cobra.Command{
-	Use:   "users",
-	Short: "Users operations",
+	Use:     "users",
+	Aliases: []string{"user"},
+	Short:   "Users operations",
 	//	Long: `A longer description that spans multiple lines and likely contains examples
 	//and usage of using your command. For example:
 	//
