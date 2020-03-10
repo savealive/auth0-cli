@@ -73,9 +73,16 @@ func getRolesWithUsers() (rolesMap, error) {
 		return nil, err
 	}
 	for _, role := range roles.Roles {
-		users, err := m.Role.Users(*role.ID)
-		if err != nil {
-			return nil, err
+		var users []*management.User
+		for i:=0; ;i++  {
+			u, err := m.Role.Users(*role.ID, management.Page(i))
+			if err != nil {
+				return nil, err
+			}
+			if len(u) == 0 {
+				break
+			}
+			users = append(users, u...)
 		}
 		r[*role] = users
 	}
@@ -167,5 +174,16 @@ func fetchUsersByRole(r string) ([]*management.User, error) {
 	if err != nil {
 		return nil, err
 	}
-	return m.Role.Users(roles[r])
+	var users []*management.User
+	for i:=0; ;i++  {
+		u, err := m.Role.Users(roles[r], management.Page(i))
+		if err != nil {
+			return nil, err
+		}
+		if len(u) == 0 {
+			break
+		}
+		users = append(users, u...)
+	}
+	return users, nil
 }
