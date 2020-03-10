@@ -1,0 +1,15 @@
+# .goreleaser.yml
+builds:
+        # GOOS list to build for.
+        # For more info refer to: https://golang.org/doc/install/source#environment
+        # Defaults are darwin and linux.
+        goos:
+            - darwin
+			- linux
+            - windows
+
+        # GOARCH to build for.
+        # For more info refer to: https://golang.org/doc/install/source#environment
+        # Defaults are 386 and amd64.
+        goarch:
+            - amd64
