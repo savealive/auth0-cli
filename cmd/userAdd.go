@@ -44,10 +44,10 @@ func init() {
 	userAddCmd.Flags().StringSliceVarP(&roles, "roles", "r", []string{}, "list of roles")
 }
 
-func addUser(email, password, investorID, supplierId string) {
-	appMetadata := map[string]interface{}{"investorId": investorID, "supplierId": supplierId}
+func addUser(email, password, investorID, supplierID string) {
+	appMetadata := map[string]interface{}{"investorId": investorID, "supplierID": supplierID}
 	userMetadata := make(map[string]interface{})
-    conn := "Username-Password-Authentication"
+	conn := "Username-Password-Authentication"
 
 	var u = &management.User{
 		Name:         &email,
@@ -113,13 +113,15 @@ func addRolesToUser(u *management.User, roles ...string) error {
 
 func getRoleMap() (map[string]*management.Role, error) {
 	var roleMap = make(map[string]*management.Role)
-	if r, err := m.Role.List(); err != nil {
+	r, err := m.Role.List()
+	if err != nil {
 		fmt.Println(err)
 		return nil, err
-	} else {
-		for _, role := range r.Roles {
-			roleMap[*role.Name] = role
-		}
 	}
+
+	for _, role := range r.Roles {
+		roleMap[*role.Name] = role
+	}
+
 	return roleMap, nil
 }

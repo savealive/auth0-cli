@@ -31,7 +31,7 @@ var listRolesCmd = &cobra.Command{
 	//This application is a tool to generate the needed files
 	//to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		ListRoles()
+		listRoles()
 	},
 }
 
@@ -39,7 +39,7 @@ func init() {
 	rolesCmd.AddCommand(listRolesCmd)
 }
 
-func ListRoles() {
+func listRoles() {
 	rl, err := m.Role.List()
 	if err != nil {
 		exitWithMessage(err, 1)

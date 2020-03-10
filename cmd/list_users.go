@@ -26,7 +26,7 @@ var listUsersCmd = &cobra.Command{
 	Use:   "list",
 	Short: "Lists users in tenant",
 	Run: func(cmd *cobra.Command, args []string) {
-		ListUsers()
+		listUsers()
 	},
 }
 
@@ -54,7 +54,7 @@ func init() {
 	listUsersCmd.Flags().StringVarP(&filterRole, "role", "r", "", "Role to filter")
 }
 
-func GetRoles() (map[string]string, error) {
+func getRoles() (map[string]string, error) {
 	roles := make(map[string]string)
 	rl, err := m.Role.List()
 	if err != nil {
@@ -74,7 +74,7 @@ func getRolesWithUsers() (rolesMap, error) {
 	}
 	for _, role := range roles.Roles {
 		var users []*management.User
-		for i:=0; ;i++  {
+		for i := 0; ; i++ {
 			u, err := m.Role.Users(*role.ID, management.Page(i))
 			if err != nil {
 				return nil, err
@@ -89,7 +89,7 @@ func getRolesWithUsers() (rolesMap, error) {
 	return r, nil
 }
 
-func ListUsers() {
+func listUsers() {
 	printUsers(filterRole)
 }
 
@@ -170,12 +170,12 @@ func printUsers(role string) {
 }
 
 func fetchUsersByRole(r string) ([]*management.User, error) {
-	roles, err := GetRoles()
+	roles, err := getRoles()
 	if err != nil {
 		return nil, err
 	}
 	var users []*management.User
-	for i:=0; ;i++  {
+	for i := 0; ; i++ {
 		u, err := m.Role.Users(roles[r], management.Page(i))
 		if err != nil {
 			return nil, err
