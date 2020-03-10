@@ -5,7 +5,7 @@ builds:
         # Defaults are darwin and linux.
         goos:
             - darwin
-			- linux
+            - linux
             - windows
 
         # GOARCH to build for.
