@@ -46,7 +46,14 @@ func init() {
 }
 
 func addUser(email, password, investorID, supplierID *string) {
-	appMetadata := map[string]interface{}{"investorId": investorID, "supplierId": supplierID}
+
+	appMetadata := map[string]interface{}{}
+	if *investorID != "" {
+		appMetadata["investorId"] = investorID
+	}
+	if *supplierID != "" {
+		appMetadata["supplierId"] = supplierID
+	}
 	userMetadata := map[string]interface{}{}
 	conn := "Username-Password-Authentication"
 
