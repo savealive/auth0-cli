@@ -32,7 +32,8 @@ var userAddCmd = &cobra.Command{
 	Long:  `Adds a new user`,
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		addUser(strings.ToLower(args[0]), password, investorID, supplierID)
+		email := strings.ToLower(args[0])
+		addUser(&email, &password, &investorID, &supplierID)
 	},
 }
 
@@ -44,16 +45,16 @@ func init() {
 	userAddCmd.Flags().StringSliceVarP(&roles, "roles", "r", []string{}, "list of roles")
 }
 
-func addUser(email, password, investorID, supplierID string) {
-	appMetadata := map[string]interface{}{"investorId": investorID, "supplierID": supplierID}
-	userMetadata := make(map[string]interface{})
+func addUser(email, password, investorID, supplierID *string) {
+	appMetadata := map[string]interface{}{"investorId": investorID, "supplierId": supplierID}
+	userMetadata := map[string]interface{}{}
 	conn := "Username-Password-Authentication"
 
 	var u = &management.User{
-		Name:         &email,
-		Email:        &email,
+		Name:         email,
+		Email:        email,
 		Connection:   &conn,
-		Password:     &password,
+		Password:     password,
 		UserMetadata: userMetadata,
 		AppMetadata:  appMetadata,
 	}
@@ -63,7 +64,7 @@ func addUser(email, password, investorID, supplierID string) {
 			// https://auth0.com/docs/api/management/v2#!/Users/post_users
 			switch err.Status() {
 			case 409:
-				if ul, err := m.User.ListByEmail(email); err != nil {
+				if ul, err := m.User.ListByEmail(*email); err != nil {
 					fmt.Println(err)
 				} else {
 					for _, u := range ul {
