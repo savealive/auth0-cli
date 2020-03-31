@@ -19,7 +19,6 @@ import (
 	"github.com/jedib0t/go-pretty/table"
 	"github.com/spf13/cobra"
 	"reflect"
-	"time"
 )
 
 // userGetCmd represents the userGet command
@@ -74,12 +73,8 @@ func getUser(id string) {
 
 
 func getVal(v interface{}) interface{} {
-	t, ok := v.(*time.Time)
-	t1 := *t
-	fmt.Println(t, t1, ok)
-	r := reflect.ValueOf(v).Elem()
-	if r.IsValid() {
-		return r
+	if !reflect.ValueOf(v).IsNil() {
+		return reflect.ValueOf(v).Elem()
 	}
 	return "N/A"
 }
